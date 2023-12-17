@@ -1,4 +1,4 @@
- #-*- coding: cp1251 -*-
+ #-*- coding: UTF-8 -*-
 
 
 from bots import vkbot
@@ -6,7 +6,6 @@ from bot import handlers
 
 # Токен доступа 
 vktoken = ""
-
 # Создание соединения с вк ботом
 vkbot = vkbot.VkBot(vktoken)
 

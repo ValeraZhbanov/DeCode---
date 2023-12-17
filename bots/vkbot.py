@@ -1,4 +1,4 @@
-# -*- coding: cp1251 -*-
+# -*- coding: UTF-8 -*-
 
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
