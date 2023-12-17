@@ -1,0 +1,36 @@
+
+Запуск приложения
+1 Установите все зависимости и убедитесь что не возникло конфликтов
+2 Запустите файл start_bots\startvkbot.py, возможен запуск нескольких процессов для параллельной обработки, но только в случае достаточных вычислительных ресурсов
+
+Содержание проекта
+bot/ содержит файлы отвечающие за функции бота
+bot/handlers - обработчики событий 
+bot/AI - содержит классы помощники для создания и инициализации объектов моделей нейронных сетей
+bot/botgpt - языковая модель
+bots/vkbot - класс для взаимодействием с вк ботами 
+sql/dbstore - класс и методы для работы с базой данных
+start_bots/startvkbot - точка входа, запускает цикл опроса сервера вк и анализ полученных ответов 
+
+
+
+Зависимости и версии
+Python 3.11
+
+pip install --upgrade pip
+pip install vk-api
+pip install numpy
+pip install pandas
+pip install gensim
+pip install --upgrade tensorflow[and-cuda]
+pip install keras
+pip install transformers
+pip install jarowinkler
+pip install matplotlib
+
+pip uninstall torch torchvision torchaudio
+
+pip install torch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 --index-url https://download.pytorch.org/whl/cu121
+
+
+
