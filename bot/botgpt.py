@@ -1,47 +1,42 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: cp1251 -*-
 import re
+import torch
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
 class BotGTP:
-    """
-    Класс для работы с языковой моделью
-    """
     def __init__(self):
-        self.modelname = "sberbank-ai/rugpt3large_based_on_gpt2" 
-        self.system = "Вы помощник главы города Мирный (региона Саха-Якутия) с искусственным интеллектом, языковая модель обученная помогать пользователям, внимательно читайте вопросы и давайте ответы на них. "
+        self.modelname = "sberbank-ai/rugpt3large_based_on_gpt2"
         self.tok = GPT2Tokenizer.from_pretrained(self.modelname)
         self.model = GPT2LMHeadModel.from_pretrained(self.modelname).cuda()
 
-        
-    def generate(self, text):
-        text = self.system + text
+    def generate(self, texts):
+        self.system = """Система: Вы ассистент (чат бот ВКонтакте) главы города Мирный региона Якутия, вы искусственный интеллект, большая языковая модель. Внимательно следуйте инструкциям пользователя. Давайте ответы в официально деловом стиле. Отвечайте с помощью markdown. \n"""
+
+        text = self.system + "\n".join([f"{role[0]}: {role[1]}" for role in texts]) + "\n" + "Ассистент:"
+
         input_ids = self.tok.encode(text, return_tensors="pt").cuda()
-        out = text
 
-        for it in range(2):
-            generated = self.model.generate(
-                input_ids.cuda(),
-                max_length=len(text) + 100 * (it + 1),
-                repetition_penalty=2.0,
-                do_sample=True,
-                top_k=3, 
-                top_p=0.95, 
-                temperature=0.8,
-                num_beams=10, 
-                no_repeat_ngram_size=3, 
-                num_return_sequences=1)
+        generated = self.model.generate(
+            input_ids.cuda(),
+            max_new_tokens=200,
+            repetition_penalty=4.0,
+            do_sample=True,
+            top_k=3,
+            top_p=0.99,
+            temperature=0.6,
+            num_beams=10,
+            no_repeat_ngram_size=3,
+            num_return_sequences=1).cuda()
 
-            input_ids = generated
+        out = generated[0]
+        out = out[len(input_ids[0]) :]
+        out = self.tok.decode(out)
 
-            out = self.tok.decode(generated[0])
+        m = re.search('(<.{1,10}>)|(\n[А-яA-z ]{1,20}:)', out)
 
-            m = re.search('<.{1,10}>', out)
+        if m:
+            out = out[: m.start()]
 
-
-            if m:
-                out = out[: m.start()]
-                return out[len(text) :]
-
-        return out[len(text) :]
+        return out
 
 

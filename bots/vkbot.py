@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: cp1251 -*-
 
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
@@ -21,6 +21,7 @@ class VkBot:
 
         # Слушатели события новых сообщений
         self.eventMessageNew = []
+        self.eventReactionNew = []
 
 
     def callEvents(self, l, params):
@@ -54,7 +55,8 @@ class VkBot:
             'user_id': user_id, 
             'message': message, 
             'attachment': files,
-            'random_id': get_random_id()
+            'random_id': get_random_id(),
+            'dont_parse_links': 1,
         })
 
 
@@ -68,7 +70,6 @@ class VkBot:
                 if event.type == VkEventType.MESSAGE_NEW:
                     if event.to_me:
                         self.callEvents(self.eventMessageNew, [self, event.user_id, event.text])
-
 
 
             except Exception as e:

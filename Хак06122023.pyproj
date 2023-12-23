@@ -24,6 +24,7 @@
     <Compile Include="bot\AI.py" />
     <Compile Include="bots\vkbot.py" />
     <Compile Include="bot\botgpt.py" />
+    <Compile Include="bot\filesearchengine.py" />
     <Compile Include="sql\dbstore.py" />
     <Compile Include="start_bots\startvkbot.py" />
     <Compile Include="bot\handlers.py" />

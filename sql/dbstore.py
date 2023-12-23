@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: cp1251 -*-
 
 import psycopg2
 import psycopg2.extras
@@ -11,8 +11,6 @@ class DbStore:
         return psycopg2.connect(
             dbname='bot',
             user='postgres', 
-            password='************', 
-            host='**********',
             port=5432
         )
 

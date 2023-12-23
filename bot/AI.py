@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: cp1251 -*-
 
 import re
 import json

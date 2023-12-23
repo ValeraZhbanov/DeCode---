@@ -8,8 +8,11 @@ import matplotlib.dates
 from sql.dbstore import DbStore
 
 from bot import AI
+from bot.filesearchengine import FileSearchEngine
 from bot.botgpt import BotGTP
 from sql.dbstore import DbStore
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # Имя и путь для рабочей директории приложения
 BASENAME = os.path.basename(__file__)
@@ -17,6 +20,8 @@ PATH = os.path.abspath(__file__).replace(BASENAME, "")
 
 # Языковая модель
 botgpt = BotGTP()
+
+filesearchengine = FileSearchEngine(PATH)
 
 # Токинайзер путь
 tokenizer_path = os.path.join(PATH, "AI_data", "encoder", "encoder.w2v")
@@ -48,7 +53,7 @@ def newMessageEvent(bot, user_id, text):
 
     # Проводим модерацию
     if moderation.normal_text(text) < 0.70:
-        return give_an_answer(bot, user_id, код_запроса, """"
+        return give_an_answer(bot, user_id, код_запроса, """
 Если Вы получили данное сообщение, то Ваш запрос содержит: ненормативную лексику, оскорбление.
 Или же контекст сообщения не имеет отношения к работе администрации.
 Пожалуйста, переформулируйте свой запрос.""")
@@ -57,20 +62,19 @@ def newMessageEvent(bot, user_id, text):
     q, a = qa(text)
 
     # Обрабатываем сообщение соответствующего типа
+    if 0.90 < jarowinkler.jarowinkler_similarity(text.lower(), "ошибка"):
+        return 
+
     if 0.90 < jarowinkler.jarowinkler_similarity(text.lower(), "покажи инструкцию"):
         return process_desc(bot, user_id, код_запроса, text)
 
     if 0.90 < jarowinkler.jarowinkler_similarity(text.lower(), "покажи статистику"):
         return process_stat(bot, user_id, код_запроса, text)
 
-    if 0.70 < q and a < 0.30:
-        return processq(bot, user_id, код_запроса, text)
-
-    if 0.70 < a and q < 0.30:
+    if 0.90 < a and q < 0.10:
         return processa(bot, user_id, код_запроса, text)
 
-    # Ответ по умолчанию
-    return give_an_answer(bot, user_id, код_запроса, "Не удалось однозначно определить тип обращения. Попробуйте перефразировать и обратится повторно.")
+    return processq(bot, user_id, код_запроса, text)
 
 
 
@@ -129,7 +133,17 @@ def processq(bot, user_id, код_запроса, text):
     изменить_тип_запроса(код_запроса, 1)
 
     give_an_answer(bot, user_id, код_запроса, "Ваш вопрос отправлен на рассмотрение, ожидайте ответа.")
-    give_an_answer(bot, user_id, код_запроса, botgpt.generate(text))
+    give_an_answer(bot, user_id, код_запроса, botgpt.generate([["Пользователь", text]]))
+
+    files = filesearchengine.get_files(text)
+    if not files is None:
+        give_an_answer(bot, user_id, код_запроса, files)
+
+    links = filesearchengine.get_links(text)
+    if not links is None:
+        give_an_answer(bot, user_id, код_запроса, links)
+
+    give_an_answer(bot, user_id, код_запроса, "Если вас не устроил мой ответ, то напишите сообщение «Ошибка» и дождитесь ответа сотрудника администрации.")
 
     изменить_статус_запроса(код_запроса, 1)
     return
@@ -236,14 +250,14 @@ GROUP BY CAST(Сообщения.Дата as date)
     #plt.title("Число запросов по дням")
     #plt.xlabel("Дни")
     #plt.ylabel("Число запросов")
-    plt.savefig('count_exec.png')
+    plt.savefig('D:\Projects\prj06122023\count_exec.png')
 
     return {
         'ЧислоЗапросов': ЧислоЗапросов, 
         'ЧислоВопросов': ЧислоВопросов, 
         'ЧислоПредложений': ЧислоПредложений, 
         'ЧислоСтатистик': ЧислоСтатистик, 
-        'График': 'count_exec.png', 
+        'График': 'D:\Projects\prj06122023\count_exec.png', 
     }
 
 
